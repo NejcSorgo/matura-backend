@@ -10,12 +10,11 @@ require_once "catalog.php";
 $request_body = file_get_contents('php://input'); //shrani podatke od POST 
 $headers = apache_request_headers(); // dobi headerje (npr token od cookie)
 foreach ($headers as $header => $value) { // za vsak header doda vrednost
-    echo "$header: $value <br />\n";
 }
 if (isset($_GET["login"])) // WIP
 {
   $payload = json_decode($request_body);
-  cors('http://localhost'); // dovoli povezavo samo s tega URL, drugace ne stima
+  cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
   $login = new account;
   $token = $login->login($conn, $payload); // ustvari token
   if ($token) {
@@ -27,7 +26,7 @@ if (isset($_GET["login"])) // WIP
 }
 if (isset($_GET["signup"])) {
   $payload = json_decode($request_body);
-  cors('http://localhost'); // dovoli povezavo samo s tega URL, drugace ne stima
+  cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
   $signup = new account;
   if ($signup->signup($conn, $payload))
     http_response_code(201); // status Created
@@ -36,7 +35,7 @@ if (isset($_GET["signup"])) {
 }
 
 if (isset($_GET["getProductCatalog"])) {
-  cors('http://localhost'); // dovoli povezavo samo s tega URL, drugace ne stima
+  cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
   $productCatalog = new catalog;
   if ($productCatalog->getCatalog($conn)) {
     // da dela pa ne mece napak
@@ -46,7 +45,7 @@ if (isset($_GET["getProductCatalog"])) {
   }
 }
 if (isset($_GET["getAccountData"])) {
-  cors('http://localhost');
+  cors('http://localhost:3000');
   $payload = json_decode($request_body);
   $account = new account;
   if ($account->getData($payload, $conn))
@@ -55,7 +54,7 @@ if (isset($_GET["getAccountData"])) {
     http_response_code(403); // 403 forbidden (token ni veljavem)
 }
 if (isset($_GET["changeProfileImage"])) {
-  cors('http://localhost');
+  cors('http://localhost:3000');
   $account = new account;
   $payload = json_decode($request_body);
   if ($account->setImage($payload, $conn)) {
@@ -64,3 +63,15 @@ if (isset($_GET["changeProfileImage"])) {
     http_response_code(403);
   }
 }
+// admin funckije  - - - - -----------------------------------------------------------------
+
+//if (isset($_GET["insertProduct"])) {
+//  cors('http://localhost:3001');
+ /// $admin = new admin;
+  //$payload = json_decode($request_body);
+ // if ($admin->setImage($payload, $conn)) {
+  //  http_response_code(200);
+ // } else {
+ //   http_response_code(403);
+ // }
+//}
