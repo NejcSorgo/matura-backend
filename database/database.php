@@ -65,13 +65,33 @@ if (isset($_GET["changeProfileImage"])) {
 }
 // admin funckije  - - - - -----------------------------------------------------------------
 
-//if (isset($_GET["insertProduct"])) {
-//  cors('http://localhost:3001');
- /// $admin = new admin;
-  //$payload = json_decode($request_body);
- // if ($admin->setImage($payload, $conn)) {
-  //  http_response_code(200);
- // } else {
- //   http_response_code(403);
- // }
-//}
+if (isset($_GET["insertProduct"])) {
+  cors('http://localhost:3001');
+  $admin = new admin;
+  $payload = json_decode($request_body);
+  if ($admin->insertProduct($payload, $conn)) {
+    http_response_code(200);
+  } else {
+    http_response_code(403);
+  }
+}
+if (isset($_GET["updateProduct"])){
+  cors('http://localhost:3001');
+  $admin = new admin;
+  $payload = json_decode($request_body);
+  if ($admin->updateProduct($payload, $conn)) {
+    http_response_code(200);
+  } else {
+    http_response_code(403);
+  }
+}
+if (isset($_GET["deleteProduct"])){
+  cors('http://localhost:3001');
+  $admin = new admin;
+  $payload = json_decode($request_body);
+  if ($admin->deleteProduct($payload, $conn)) {
+    http_response_code(200);
+  } else {
+    http_response_code(403);
+  }
+}

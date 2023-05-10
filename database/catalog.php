@@ -42,7 +42,7 @@ class catalog
         return true;
     }
     public function getProductVariants($conn, $payload) // vrne json 1 producta in productVariante tega producta ter rating tega producta
-    { 
+    {
         $productID = $payload->productID;
         $sql = "SELECT v.color,v.size,v.stock FROM productvariant v,product p WHERE p.id = :productid AND p.id = v.productID;";
         $fetchVariants = $conn->prepare($sql);
@@ -81,23 +81,32 @@ class catalog
         echo (json_encode($product)); // vrne json od associativnega polje
         return true;
     }
-    public function searchProductFilter ($conn, $payload){
+    public function searchProductFilter($conn, $payload) // fixed by gpt :)
+    {
         $search = $payload->search;
         $tags = $payload->filter;
-        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID";
-        for ($j = 0; $j<sizeof($tags);$j++) // podaljsa sql string 
-        {
-            $sql .= " AND t.name =\":tag$j\""; 
+        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags'
+        FROM product p, tags t, tagtoproduct tp
+        WHERE p.id = tp.productID AND t.id = tp.TagID AND p.productName LIKE \"$search\" AND t.tagName IN(";
+
+        for ($j = 0; $j < sizeof($tags); $j++) {
+            $sql .= ":tag$j";
+            if ($j < sizeof($tags) - 1) { // na koncu odstrani vejico
+                $sql .= ",";
+            }
         }
+
+        $sql .= ") GROUP BY productName;";
         $fetchProducts = $conn->prepare($sql);
-        $sql .= " GROUP BY productName;";
-        for ($j = 0; $j<sizeof($tags);$j++)
-        {
-            $fetchProducts->bindParam(":tag$j", $tags[$j], PDO::PARAM_STR); 
+        for ($j = 0; $j < sizeof($tags); $j++) {
+            $fetchProducts->bindParam(":tag$j", $tags[$j], PDO::PARAM_STR);
         }
-        
-        $fetchProducts->execute();
-        $sql = "SELECT v.color,v.size,v.stock FROM productvariant v,product p WHERE p.id = :productid AND p.id = v.productID;";
+        echo ("$sql <br >");
+        echo $fetchProducts->execute();
+        $sql = "SELECT v.color,v.size,v.stock
+        FROM productvariant v,product p
+        WHERE p.id = :productid AND p.id = v.productID;";
+
         $fetchProductVariant = $conn->prepare($sql);
         $j = 0;
         $products = array();

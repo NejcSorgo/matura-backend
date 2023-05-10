@@ -51,7 +51,7 @@ CREATE TABLE review(
     rating tinyint(2) NOT NULL,
     FOREIGN KEY (productID) REFERENCES product(id),
     FOREIGN KEY (productID) REFERENCES product(id)
-)
+);
 INSERT user (username, password,admin) VALUES ("admin", "$2y$10$NTIrrcDWdTwujsa5f0fXJu3rrfYb9X3luLkNKPGa0LerqJcIi.i9G", true);
 INSERT user (username,password) VALUES ("nejc","1234");
 INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Shirt",19.99,"Shirts","Men","majca za nosit");
