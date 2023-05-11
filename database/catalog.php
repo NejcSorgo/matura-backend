@@ -44,7 +44,6 @@ class catalog
     public function getProductVariants($conn, $payload) // vrne json 1 producta in productVariante tega producta ter rating tega producta
     {
         $productID = $payload->productID;
-        echo $productID;
         $sql = "SELECT v.color,v.size,v.stock FROM productvariant v,product p WHERE p.id = :productid AND p.id = v.productID;";
         $fetchVariants = $conn->prepare($sql);
         $fetchVariants->execute([ // fetcha vse productVariante za posamezen id
