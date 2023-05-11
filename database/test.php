@@ -3,12 +3,16 @@ require_once "connect.php";
 $payload = new stdClass();
 $payload->search = "Shirt";
 $payload->filter = ["winter", "coat"];
+$payload->superCategory ="men";
+$patload->category ="shirts";
 
 $search = $payload->search;
 $tags = $payload->filter;
-$sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags'
-        FROM product p, tags t, tagtoproduct tp
-        WHERE p.id = tp.productID AND t.id = tp.TagID AND t.tagName IN(";
+$category = $payload->category;
+$superCategory = $payload->superCategory;
+$sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.productSuperCategory, p.description GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags'
+FROM product p, tags t, tagtoproduct tp
+WHERE p.id = tp.productID AND t.id = tp.TagID AND p.productCategory=:category AND p.productSuperCategory=:superCategory AND p.productName LIKE \"$search\" AND t.tagName IN(";
 
 for ($j = 0; $j < sizeof($tags); $j++) {
     $sql .= ":tag$j";
@@ -22,12 +26,13 @@ $fetchProducts = $conn->prepare($sql);
 for ($j = 0; $j < sizeof($tags); $j++) {
     $fetchProducts->bindParam(":tag$j", $tags[$j], PDO::PARAM_STR);
 }
-echo ("$sql <br >");
-echo $fetchProducts->execute();
+$fetchProducts->execute([
+    ":category"  => $category,
+    ":superCategory" => $superCategory
+]);
 $sql = "SELECT v.color,v.size,v.stock
-        FROM productvariant v,product p
-        WHERE p.id = :productid AND p.id = v.productID;";
-
+FROM productvariant v,product p
+WHERE p.id = :productid AND p.id = v.productID;";
 $fetchProductVariant = $conn->prepare($sql);
 $j = 0;
 $products = array();

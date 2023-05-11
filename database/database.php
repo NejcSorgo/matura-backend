@@ -44,6 +44,17 @@ if (isset($_GET["getProductCatalog"])) {
     http_response_code(404); // vrne not found ce nekaj ne stima
   }
 }
+if (isset($_GET["getProductVariantsg"])) {
+  $payload = json_decode($request_body);
+  cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
+  $productCatalog = new catalog;
+  if ($productCatalog->getProductVariants($conn,$payload)) {
+    // da dela pa ne mece napak
+    http_response_code(200);  // status OK
+  } else {
+    http_response_code(404); // vrne not found ce nekaj ne stima
+  }
+}
 if (isset($_GET["getAccountData"])) {
   cors('http://localhost:3000');
   $payload = json_decode($request_body);
