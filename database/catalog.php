@@ -49,9 +49,11 @@ class catalog
         $fetchVariants->execute([ // fetcha vse productVariante za posamezen id
             ":productid" => $productID,
         ]);
-        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID AND p.id = :productID GROUP BY productName; ";
+        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID AND p.id = :productid GROUP BY productName; ";
         $fetchProduct = $conn->prepare($sql);
-        $fetchProduct->execute();
+        $fetchProduct->execute([ // fetcha vse productVariante za posamezen id
+            ":productid" => $productID,
+        ]);
         if ($productRow = $fetchProduct->fetch()) { // hardcoded, ker drugace nena vredi dela
             $fetchVariants->execute([ // fetcha vse productVariante za posamezen id
                 ":productID" => $productRow["id"],
