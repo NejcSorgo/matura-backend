@@ -54,7 +54,7 @@ class catalog
         $fetchProduct->execute();
         if ($productRow = $fetchProduct->fetch()) { // hardcoded, ker drugace nena vredi dela
             $fetchVariants->execute([ // fetcha vse productVariante za posamezen id
-                ":productid" => $productRow["id"],
+                ":productID" => $productRow["id"],
             ]);
             $variants = array(); // definira variant array
             $i = 0;
