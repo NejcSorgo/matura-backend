@@ -32,6 +32,7 @@ class catalog
                 "Name" => $productRow["productName"],
                 "Price" => $productRow["productPrice"],
                 "Category" => $productRow["productCategory"],
+                "desc" => $productRow["description"],
                 "Tags" => $tags,
                 "variants" => $variants,
                 "ProductID" => $productRow["id"]
