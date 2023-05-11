@@ -4,7 +4,7 @@ class catalog
 
     public function getCatalog($conn) // vrne json seznam productov in productVariantov *todo: vrne samo baseproduct in preveri ce je katerikoli od variantProductov in stock.*
     { // WIP
-        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.description GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID GROUP BY productName; ";
+        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.description, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID GROUP BY productName; ";
         $fetchProducts = $conn->prepare($sql);
         $fetchProducts->execute();
         $sql = "SELECT v.color,v.size,v.stock FROM productvariant v,product p WHERE p.id = :productid AND p.id = v.productID;";
@@ -50,7 +50,7 @@ class catalog
         $fetchVariants->execute([ // fetcha vse productVariante za posamezen id
             ":productid" => $productID,
         ]);
-        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id, p.description GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID AND p.id = :productid GROUP BY productName; ";
+        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.description, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID AND p.id = :productid GROUP BY productName; ";
         $fetchProduct = $conn->prepare($sql);
         $fetchProduct->execute([ // fetcha vse productVariante za posamezen id
             ":productid" => $productID,
@@ -74,8 +74,8 @@ class catalog
                 "Price" => $productRow["productPrice"],
                 "Category" => $productRow["productCategory"],
                 "Tags" => $tags,
-                "desc" => $productRow["description"],
-                "variants" => $variants,
+                "Desc" => $productRow["description"],
+                "Variants" => $variants,
                 "ProductID" => $productRow["id"]
             );
         }
@@ -88,7 +88,7 @@ class catalog
         $tags = $payload->filter;
         $category = $payload->category;
         $superCategory = $payload->superCategory;
-        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.productSuperCategory, p.description GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags'
+        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.productSuperCategory, p.description, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags'
         FROM product p, tags t, tagtoproduct tp
         WHERE p.id = tp.productID AND t.id = tp.TagID AND p.productCategory=:category AND p.productSuperCategory=:superCategory AND p.productName LIKE \"$search\" AND t.tagName IN(";
 
