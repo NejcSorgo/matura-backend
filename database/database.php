@@ -44,7 +44,7 @@ if (isset($_GET["getProductCatalog"])) {
     http_response_code(404); // vrne not found ce nekaj ne stima
   }
 }
-if (isset($_GET["getProductVariantsg"])) {
+if (isset($_GET["getProductVariants"])) {
   $payload = json_decode($request_body);
   cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
   $productCatalog = new catalog;
