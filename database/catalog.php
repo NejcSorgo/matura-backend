@@ -32,7 +32,7 @@ class catalog
                 "Name" => $productRow["productName"],
                 "Price" => $productRow["productPrice"],
                 "Category" => $productRow["productCategory"],
-                "desc" => $productRow["description"],
+                
                 "Tags" => $tags,
                 "variants" => $variants,
                 "ProductID" => $productRow["id"]
@@ -50,7 +50,7 @@ class catalog
         $fetchVariants->execute([ // fetcha vse productVariante za posamezen id
             ":productid" => $productID,
         ]);
-        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID AND p.id = :productid GROUP BY productName; ";
+        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id, p.description GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID AND p.id = :productid GROUP BY productName; ";
         $fetchProduct = $conn->prepare($sql);
         $fetchProduct->execute([ // fetcha vse productVariante za posamezen id
             ":productid" => $productID,
@@ -74,6 +74,7 @@ class catalog
                 "Price" => $productRow["productPrice"],
                 "Category" => $productRow["productCategory"],
                 "Tags" => $tags,
+                "desc" => $productRow["description"],
                 "variants" => $variants,
                 "ProductID" => $productRow["id"]
             );
