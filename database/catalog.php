@@ -51,7 +51,7 @@ class catalog
             ":productid" => $productID,
         ]);
         $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.description, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID AND p.id = :productid GROUP BY productName; ";
-        $fetchProduct = $conn->prepare($sql);
+        $fetchProduct = $conn->prepare($sql);   
         $fetchProduct->execute([ // fetcha vse productVariante za posamezen id
             ":productid" => $productID,
         ]);
@@ -156,5 +156,25 @@ class catalog
             $i++;
          }  
          echo json_encode($categories);
+    }
+    public function getReviews($conn,$payload){
+        $productID = $payload->productID;
+        $reviews = array();
+        $sql  = "SELECT r.description,r.rating,u.id AS 'userid',u.username FROM review r, user u,product p WHERE r.userID = u.id AND r.productID = p.id AND r.id = :productID";
+        $fetchReviews= $conn->prepare($sql);
+        $fetchReviews->execute([ // fetcha vse productVariante za posamezen id
+            ":productID" => $productID
+        ]);
+        $i = 0;
+        while ($reviewRow = $fetchReviews->fetch()){
+            $reviews[$i] = array( // napolni associativno polje z vsemi podatki o prodoktu
+                "username" => $reviewRow["username"],
+                "userid" => $reviewRow["userid"],
+                "description" => $reviewRow["description"],
+            );
+            $i++;
+         }  
+         echo json_encode($reviews);
+        
     }
 }

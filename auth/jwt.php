@@ -24,7 +24,7 @@ class JWT  //Vir: https://dev.to/thedevdrawer/json-web-tokens-without-firebase-j
     public function generate(array $payload): string
     {  // Generira JWT z  Payloadom
         $headers = $this->encode(json_encode($this->headers)); // zakodira glavo
-        $payload['exp'] = time() + 3600; // doda cas izteka  (60 min)
+        $payload['exp'] = time() + 172800000; // doda cas izteka  (2 dni)
         $payload = $this->encode(json_encode($payload)); // zakodira payload
         $signature = hash_hmac('SHA256', "$headers.$payload", $this->secret, true); //ustvari SHA256 podpis
         $signature = $this->encode($signature); // zakodira podpis
@@ -43,8 +43,6 @@ class JWT  //Vir: https://dev.to/thedevdrawer/json-web-tokens-without-firebase-j
         }
         $headers = base64_decode($token[0]); // 
         $payload = base64_decode($token[1]);
-        var_dump($payload);
-        var_dump($headers);
         $clientSignature = $token[2];
 
         if (!json_decode($payload)) { // preveri ce payload obstaja

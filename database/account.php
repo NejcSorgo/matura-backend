@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
 require_once "../auth/jwt.php";
 class account
 {
@@ -76,21 +77,19 @@ class account
         }
         $token = $jwt->decode($token); // razsifrira token
         $token = json_decode($token, 1);
-        $password = $token["password"];
         $username = $token["username"];
-        $sql = "SELECT * FROM user WHERE password =:pswrd AND username=:usr"; // nesmes uporabit <':usr'> ker nebo deloval (https://www.php.net/manual/en/pdo.prepare.php drugi komentar)
+        $sql = "SELECT * FROM user WHERE username=:usr"; // nesmes uporabit <':usr'> ker nebo deloval (https://www.php.net/manual/en/pdo.prepare.php drugi komentar)
         $statement = $conn->prepare($sql);
         $statement->execute([
-            ":pswrd" => $password,
             ":usr" => $username
         ]);
         $info = $statement->fetch();
-        $info =  array(
+        $bruh =  array(
             "Name" => $info["username"],
             "Password" => $info["password"],
             "id" => $info["id"]
         );
-        echo json_encode($info);
+        echo json_encode($bruh);
         return true;
     }
     public function setImage($request, $conn)

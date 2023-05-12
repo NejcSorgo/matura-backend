@@ -4,6 +4,7 @@ CREATE TABLE user(
     id int PRIMARY KEY NOT NULL AUTO_INCREMENT,
     username VARCHAR(25) NOT NULL,
     password VARCHAR(255) NOT NULL,
+    email NVARCHAR(255) NOT NULL,
     admin boolean DEFAULT 0,
     timeCreated datetime NOT NULL DEFAULT NOW(),
     phoneNumber int(9) ZEROFILL
@@ -52,10 +53,63 @@ CREATE TABLE review(
     FOREIGN KEY (productID) REFERENCES product(id),
     FOREIGN KEY (productID) REFERENCES product(id)
 );
-INSERT user (username, password,admin) VALUES ("admin", "$2y$10$NTIrrcDWdTwujsa5f0fXJu3rrfYb9X3luLkNKPGa0LerqJcIi.i9G", true);
-INSERT user (username,password) VALUES ("nejc","1234");
+INSERT user (username, password,admin,email) VALUES ("admin", "$2y$10$NTIrrcDWdTwujsa5f0fXJu3rrfYb9X3luLkNKPGa0LerqJcIi.i9G", true,"admin@gmail.com");
+INSERT user (username,password,email) VALUES ("nejc","1234","nejc.sorgo@gmail.com");
 INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Shirt",19.99,"Shirts","Men","majca za nosit");
 INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Adidas Pants",15.99,"Pants","Women","hlace za nosit");
+INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Calvin Klein Shirt",49.90,"Shirts","Women","Calvin Klein Majica v Črna
+Dizajn & Dodatki
+Logo potisk
+Jersey
+Okrogel izrez
+Prešit obod/rob
+Raven rob
+Trak na vratu
+Barva-v-barvi-šivi
+Mehek grip
+Št. CAL6790001000001
+Velikost & Prileganje
+Dolžina rokavov: Četrt rokav
+Dolžina: Normalna dolžina
+Model: Normalno prileganje
+Model je visok 1.75m in nosi številko S
+Tabela velikosti
+Material & nega
+Material: 100% Bombaž
+Država izvora: Portugalska");
+INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Tommy Hilfinger shirt",15.99,"Shirt","Women","Calvin Klein Majica v Črna
+Dizajn & Dodatki
+Logo potisk
+Jersey
+Okrogel izrez
+Prešit obod/rob
+Raven rob
+Trak na vratu
+Barva-v-barvi-šivi
+Mehek grip
+Št. CAL6790001000001
+Velikost & Prileganje
+Dolžina rokavov: Četrt rokav
+Dolžina: Normalna dolžina
+Model: Normalno prileganje
+Model je visok 1.75m in nosi številko S
+Tabela velikosti
+Material & nega
+Material: 100% Bombaž
+Država izvora: Portugalska");
+INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Hugo Boss winter jacket",89.99,"Coats","Men","Model: 50476209 CONLON
+Fit: Regular fit
+Color: SORT
+Product number: 178938
+Winter jacket
+Filling: 100% recycled polyester
+Removable hood
+Light and strong winter jacket
+Button and zip closure
+2 front pockets
+2 chest pockets with zip closure
+1 inner pocket
+A strong winter jacket that keeps you warm on the chilly days, while being incredibly light, despite its size. The jacket has both zip and button closures so wind and cold have a hard time getting through. A jacket with many practical pockets and a hood, so if you were to go out on a walk on the cool days, you are well dressed with this jacket.");
 INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Warm Coat",89.99,"Coats","Men","plasc za nosit");
 INSERT INTO productVariant (color,stock,size,productID) VALUES ("yellow",1,"XL",1);
 INSERT INTO productVariant (color,stock,size,productID) VALUES ("gray",2,"L",1);
@@ -67,6 +121,16 @@ INSERT INTO productVariant (color,stock,size,productID) VALUES ("blue",9,"34",2)
 INSERT INTO productVariant (color,stock,size,productID) VALUES ("gray",3,"L",3);
 INSERT INTO productVariant (color,stock,size,productID) VALUES ("gray",3,"M",3);
 INSERT INTO productVariant (color,stock,size,productID) VALUES ("gray",2,"XL",3);
+INSERT INTO productVariant (color,stock,size,productID) VALUES ("yellow",1,"XL",4);
+INSERT INTO productVariant (color,stock,size,productID) VALUES ("gray",2,"L",4);
+INSERT INTO productVariant (color,stock,size,productID) VALUES ("yellow",7,"M",4);
+INSERT INTO productVariant (color,stock,size,productID) VALUES ("yellow",6,"S",5);
+INSERT INTO productVariant (color,stock,size,productID) VALUES ("blue",5,"S",5);
+INSERT INTO productVariant (color,stock,size,productID) VALUES ("black",0,"S",5);
+INSERT INTO productVariant (color,stock,size,productID) VALUES ("black",9,"S",6);
+INSERT INTO productVariant (color,stock,size,productID) VALUES ("black",3,"L",6);
+INSERT INTO productVariant (color,stock,size,productID) VALUES ("black",3,"M",6);
+INSERT INTO productVariant (color,stock,size,productID) VALUES ("black",2,"XL",6);
 INSERT INTO tags (tagName) VALUES ("winter");
 INSERT INTO tags (tagName) VALUES ("adidas");
 INSERT INTO tags (tagName) VALUES ("shirt");
@@ -74,6 +138,14 @@ INSERT INTO tags (tagName) VALUES ("warm");
 INSERT INTO tags (tagName) VALUES ("coat");
 INSERT INTO tags (tagName) VALUES ("pants");
 INSERT INTO tags (tagName) VALUES ("blue");
+INSERT INTO tags (tagName) VALUES ("calvin klein");
+INSERT INTO tags (tagName) VALUES ("jacket");
+INSERT INTO tags (tagName) VALUES ("black");
+INSERT INTO tags (tagName) VALUES ("yellow");
+INSERT INTO tags (tagName) VALUES ("red");
+INSERT INTO tags (tagName) VALUES ("tommy hilfinger");
+INSERT INTO tags (tagName) VALUES ("light blue");
+INSERT INTO tags (tagName) VALUES ("hugo boss");
 INSERT INTO tagtoproduct VALUES (1,7);
 INSERT INTO tagtoproduct VALUES (1,3);
 INSERT INTO tagtoproduct VALUES (2,6);
@@ -81,4 +153,29 @@ INSERT INTO tagtoproduct VALUES (2,2);
 INSERT INTO tagtoproduct VALUES (3,1);
 INSERT INTO tagtoproduct VALUES (3,4);
 INSERT INTO tagtoproduct VALUES (3,5);
-
+INSERT INTO tagtoproduct VALUES (4,8);
+INSERT INTO tagtoproduct VALUES (4,10);
+INSERT INTO tagtoproduct VALUES (4,11);
+INSERT INTO tagtoproduct VALUES (4,3);
+INSERT INTO tagtoproduct VALUES (5,3);
+INSERT INTO tagtoproduct VALUES (5,13);
+INSERT INTO tagtoproduct VALUES (5,14);
+INSERT INTO tagtoproduct VALUES (6,15);
+INSERT INTO tagtoproduct VALUES (6,10);
+INSERT INTO review (userID,productID,description,rating) VALUES (1,1,"misel vaukman bi se strinjal",45);
+INSERT INTO review (userID,productID,description,rating) VALUES (2,1,"u right",10);
+INSERT INTO review (userID,productID,description,rating) VALUES (2,1,"komentar lol",50);
+INSERT INTO review (userID,productID,description,rating) VALUES (1,1,"grejt produkt",45);
+INSERT INTO review (userID,productID,description,rating) VALUES (1,2,"10/10",10);
+INSERT INTO review (userID,productID,description,rating) VALUES (2,2,"In the last fifteen years, the Council of Europe has made an extraordinary contribution to the reunification of Europe. Human rights, democracy and rule of law are ever more strongly anchored in our societies and ever more thickly spread over Europe. The curtain that for so long kept the continent apart, finally rusted down, and provided us with historical opportunity to construct a brave new Europe without dividing lines. ",30);
+INSERT INTO review (userID,productID,description,rating) VALUES (2,2,"At present, reform of the European Court of Human Rights is one of the priorities. I am pleased to announce that Slovenia ratified Protocol No. 14 to the European Convention on Human Rights in April this year. Upon entry into force, the Protocol will make the Court more efficient in its procedures and more accessible to our citizens. ",50);
+INSERT INTO review (userID,productID,description,rating) VALUES (1,2,"globalno segrevanje",25);
+INSERT INTO review (userID,productID,description,rating) VALUES (1,3,"10/10",50);
+INSERT INTO review (userID,productID,description,rating) VALUES (2,3,"In the last fifteen years, the Council of Europe has made an extraordinary contribution to the reunification of Europe. Human rights, democracy and rule of law are ever more strongly anchored in our societies and ever more thickly spread over Europe. The curtain that for so long kept the continent apart, finally rusted down, and provided us with historical opportunity to construct a brave new Europe without dividing lines. ",34);
+INSERT INTO review (userID,productID,description,rating) VALUES (2,3,"At present, reform of the European Court of Human Rights is one of the priorities. I am pleased to announce that Slovenia ratified Protocol No. 14 to the European Convention on Human Rights in April this year. Upon entry into force, the Protocol will make the Court more efficient in its procedures and more accessible to our citizens. ",32);
+INSERT INTO review (userID,productID,description,rating) VALUES (1,3,"10/10",23);
+INSERT INTO review (userID,productID,description,rating) VALUES (2,3,"I am certain the Third Summit of the Council of Europe will lead to defining the role of the Council of Europe in the context of present challenges in our continent. The Action Plan we are to adopt is comprehensive, forward looking and task oriented. It may even look overambitious. On the other hand - Europe is the continent of most numerous standards and institutions worldwide. We must tap our rich expertise, reinforce synergy and make the most out of our resources. There are wide opportunities in the mandate of the Council of Europe for joint, complementary ventures with other global, regional and national organizations to tackle the challenges of vital concern for all of us. ",42);
+INSERT INTO review (userID,productID,description,rating) VALUES (2,3,"janez jansa speech",3);
+INSERT INTO review (userID,productID,description,rating) VALUES (1,3,"10/10",12);
+INSERT INTO review (userID,productID,description,rating) VALUES (2,3,"In protecting human rights we should pay special attention to the most vulnerable groups of our societies. Among them we often neglect the rights of women. Even in 21st century we still can not say that we have reached full enjoyment of gender equality and respect for the principle of non-discrimination. ",23);
+INSERT INTO review (userID,productID,description,rating) VALUES (2,3,"Slovenia as an EU member supports the Guidelines on relations between the Council of Europe and the EU and the accession of the EU to the European Convention on Human Rigts as an important step towards a coherent system of protection of human rights in Europe. ",40);

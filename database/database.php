@@ -11,6 +11,9 @@ $request_body = file_get_contents('php://input'); //shrani podatke od POST
 $headers = apache_request_headers(); // dobi headerje (npr token od cookie)
 foreach ($headers as $header => $value) { // za vsak header doda vrednost
 }
+// profile funkcije --------------------------------------------------------------
+
+
 if (isset($_GET["login"])) // WIP
 {
   $payload = json_decode($request_body);
@@ -24,6 +27,7 @@ if (isset($_GET["login"])) // WIP
     http_response_code(403); // status forbidden
   }
 }
+
 if (isset($_GET["signup"])) {
   $payload = json_decode($request_body);
   cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
@@ -33,6 +37,29 @@ if (isset($_GET["signup"])) {
   else
     http_response_code(400); // 400 bad request (manjka geslo, username ali vsebuje nedovoljene znake)
 }
+
+if (isset($_GET["changeProfileImage"])) {
+  cors('http://localhost:3000');
+  $account = new account;
+  $payload = json_decode($request_body);
+  if ($account->setImage($payload, $conn)) {
+    http_response_code(200);
+  } else {
+    http_response_code(403);
+  }
+}
+
+if (isset($_GET["getAccountData"])) {
+  cors('http://localhost:3000');
+  $payload = json_decode($request_body);
+  $account = new account;
+  if ($account->getData($payload, $conn))
+    http_response_code(200); // status OK
+  else
+    http_response_code(403); // 403 forbidden (token ni veljaven)
+}
+
+// catalog funkcije ----------------------------------------------------------------------
 
 if (isset($_GET["getProductCatalog"])) {
   cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
@@ -55,25 +82,30 @@ if (isset($_GET["getProductVariants"])) {
     http_response_code(404); // vrne not found ce nekaj ne stima
   }
 }
-if (isset($_GET["getAccountData"])) {
-  cors('http://localhost:3000');
+if (isset($_GET["getCategories"])) {
   $payload = json_decode($request_body);
-  $account = new account;
-  if ($account->getData($payload, $conn))
-    http_response_code(200); // status OK
-  else
-    http_response_code(403); // 403 forbidden (token ni veljavem)
-}
-if (isset($_GET["changeProfileImage"])) {
-  cors('http://localhost:3000');
-  $account = new account;
-  $payload = json_decode($request_body);
-  if ($account->setImage($payload, $conn)) {
-    http_response_code(200);
+  cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
+  $productCatalog = new catalog;
+  if ($productCatalog->getCategories($conn,$payload)) {
+    // da dela pa ne mece napak
+    http_response_code(200);  // status OK
   } else {
-    http_response_code(403);
+    http_response_code(404); // vrne not found ce nekaj ne stima
   }
 }
+
+if (isset($_GET["getReviews"])) {
+  $payload = json_decode($request_body);
+  cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
+  $productCatalog = new catalog;
+  if ($productCatalog->getReviews($conn,$payload)) {
+    // da dela pa ne mece napak
+    http_response_code(200);  // status OK
+  } else {
+    http_response_code(404); // vrne not found ce nekaj ne stima
+  }
+}
+
 // admin funckije  - - - - -----------------------------------------------------------------
 
 if (isset($_GET["insertProduct"])) {
