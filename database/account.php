@@ -10,19 +10,19 @@ class account
         }
         $password = $request->password;
         $username = $request->username;
-        $sql = "SELECT * FROM user WHERE username=:usr";
+        $sql = "SELECT * FROM user WHERE username=:usr OR email=:usr";
         $statement = $conn->prepare($sql);
         $statement->execute([
             ":usr" => $username
         ]);
         $result = $statement->fetch();
         if ($result) {   //preveri ce username obstaja 
-            if (!password_verify($password,$result["password"])) { // preveri ce je geslo valid
+            if (!password_verify($password, $result["password"])) { // preveri ce je geslo valid
                 return false;
-            } 
+            }
             $payload = array( // doda username in password k payloadu
                 'password' => $password,
-                'username' => $username,
+                'username' => $result["username"],
                 'iss' => "jwt.php"
             );
             $generate = new JWT();
@@ -33,43 +33,81 @@ class account
             return false;
         }
     }
-    public function signup($conn, $request)
-    {
-        if (!isset($request->password) || !isset($request->username)) {
-            return false;
-        }
-        $password = $request->password;
-        $username = $request->username;
-        $sql = "SELECT * FROM user WHERE username=:usr"; //preveri ce ze obstaja uporabnik
-        $statement = $conn->prepare($sql);
-        $statement->execute([
-            ":usr" => $username
-        ]);
-        $result = $statement->fetchAll();
-        if (!$result) {
-            return false;
-        }
-        if (preg_match('/[\'^£$%&*()}{#~?<>,|=_+¬-]/', $password) || preg_match('/[\'^£$%&*()}{#~?<>,|=_+¬-]/', $username)) // preveri za nedovoljene znake
-            return false;
-        $sql = "INSERT INTO user (username,password) VALUES(:username, :password);";
-        $statement = $conn->prepare($sql);
-        if ($statement->execute([
-            ':password' => $password,
-            ':username' => $username
-        ])) {
-            return true;
-        }
+    public function signup($conn, $request) // gpt optimised code
+{
+    if (!isset($request->password) || !isset($request->username) || !isset($request->email)) {
+        return false;
     }
 
-    public function getData($request, $conn)
+    $password = $request->password;
+    $username = $request->username;
+    $email = $request->email;
+
+    // Check the length of the username and password
+    if (strlen($password) > 60 || strlen($username) > 30) {
+        return false;
+    }
+    // Check for disallowed characters in the username and password
+    if (preg_match('/[\'"()}{<>|]/', $password) || !preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+        return false;
+    }
+    
+    // Check the length of the email address
+    if (strlen($email) > 255) {
+        return false;
+    }
+  
+    // Check the validity of the email address
+    if (!preg_match('/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/', $email)) {
+        return false;
+    }
+    
+    // Check if the username already exists
+    $sql = "SELECT * FROM user WHERE username=:usr";
+    $statement = $conn->prepare($sql);
+    $statement->execute([
+        ":usr" => $username
+    ]);
+    $result = $statement->fetchAll();
+    
+    if ($result) {
+        return false;
+    }
+    
+    // Check if the email address is already in use
+    $sql = "SELECT * FROM user WHERE email=:email";
+    $statement = $conn->prepare($sql);
+    $statement->execute([
+        ":email" => $email
+    ]);
+    $result = $statement->fetchAll();
+    if ($result) {
+        return false;
+    }
+    
+    // Insert the new user into the database
+    $sql = "INSERT INTO user (username,password,email) VALUES(:username, :password, :email);";
+    $statement = $conn->prepare($sql);
+    if ($statement->execute([
+        ':password' => password_hash($password, PASSWORD_BCRYPT),
+        ':username' => $username,
+        ':email' => $email
+    ])) {
+        return true;
+    }
+}
+    public function checkUsername ($request,$conn){
+
+    }
+    public function getData($request, $conn, $auth = null)
     {
         $jwt =  new JWT;
-        if (!isset($request->token)) // preveri ce je token sploh poslan
+        if (!isset($auth)) // preveri ce je token sploh poslan
         {
             echo "token ne obstaja";
             return false;
         }
-        $token = $request->token;
+        $token = $auth;
         if (!$jwt->is_valid($token)) // preveri ce je token valid
         {
             echo "token ni valid";
@@ -85,22 +123,24 @@ class account
         ]);
         $info = $statement->fetch();
         $bruh =  array(
-            "Name" => $info["username"],
-            "Password" => $info["password"],
-            "id" => $info["id"]
+            "username" => $info["username"],
+            "id" => $info["id"],
+            "email" => $info["email"],
+            "phoneNumber" => $info["phoneNumber"],
+            "timeCreated" => $info["timeCreated"]
         );
         echo json_encode($bruh);
         return true;
     }
-    public function setImage($request, $conn)
+    public function setImage($request, $conn, $auth = null)
     {
         $jwt =  new JWT;
-        if (!isset($request->token)) // preveri ce je token sploh poslan
+        if (!isset($auth)) // preveri ce je token sploh poslan
         {
             echo "token ne obstaja"; // debug
             return false;
         }
-        $token = $request->token;
+        $token = $auth;
         if (!$jwt->is_valid($token)) // preveri ce je token valid
         {
             return false;
