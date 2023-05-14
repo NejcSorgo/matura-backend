@@ -228,18 +228,7 @@ class account
         }
         $token = $jwt->decode($token); // razsifrira token
         $token = json_decode($token, 1);
-        $username = $token["username"];
-        $sql = "SELECT id FROM user WHERE username=:usr"; // nesmes uporabit <':usr'> ker nebo deloval (https://www.php.net/manual/en/pdo.prepare.php drugi komentar)
-        $statement = $conn->prepare($sql);
-        $statement->execute([
-            ":usr" => $username
-        ]);
-        if (!$info = $statement->fetch()) {
-            echo "sql fetch eroor";
-            return false;
-        }
-
-        $id = $info["id"];
+        $id = $token["id"];
         echo $id;
         if ($this->saveImage($id, false, $file)) {
             echo "image fetch";
