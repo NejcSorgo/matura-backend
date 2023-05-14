@@ -188,7 +188,6 @@ class catalog
             );
             $i++;
         }
-        echo $i;
         $ratingRow = $fetchRating->fetch();
         $return = array(
             "reviews" => $reviews,

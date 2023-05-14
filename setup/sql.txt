@@ -57,18 +57,7 @@ INSERT user (username, password,admin,email) VALUES ("admin", "$2y$10$NTIrrcDWdT
 INSERT user (username,password,email) VALUES ("nejc","1234","nejc.sorgo@gmail.com");
 INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Shirt",19.99,"Shirts","Men","majca za nosit");
 INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Adidas Pants",15.99,"Pants","Women","hlace za nosit");
-INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Calvin Klein Shirt",49.90,"Shirts","Women","Calvin Klein Majica v Črna
-Dizajn & Dodatki
-Logo potisk
-Jersey
-Okrogel izrez
-Prešit obod/rob
-Raven rob
-Trak na vratu
-Barva-v-barvi-šivi
-Mehek grip
-Št. CAL6790001000001
-Velikost & Prileganje
+INSERT INTO product (productName,productPrice,productCategory,productSuperCategory,description) VALUES ("Calvin Klein Shirt",49.90,"Shirts","Women","Calvin Klein Majica v Črna Dizajn & Dodatki Logo potisk Jersey Okrogel izrez Prešit obod/rob Raven rob Trak na vratu Barva-v-barvi-šivi Mehek grip Št. CAL6790001000001 Velikost & Prileganje
 Dolžina rokavov: Četrt rokav
 Dolžina: Normalna dolžina
 Model: Normalno prileganje
