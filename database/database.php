@@ -2,6 +2,8 @@
 /* 
 Vsebuje vse funkcije, za delo s podatkovno bazo. 
 */
+ini_set ("display_errors", "1");
+error_reporting(E_ALL);
 require_once "../auth/jwt.php";
 require_once "connect.php";
 require_once "admin.php";
@@ -45,12 +47,11 @@ if (isset($_GET["changeProfileImage"])) {
   $account = new account;
   $payload = json_decode($request_body);
   if (isset($_FILES['file']) && $account->setImage($conn, $auth, $_FILES['file'])) {
-    
+    echo ("dela" . $_FILES['file']["name"]);
     http_response_code(200);
   } else {
-    echo ("bruh" . $_FILES['file']);
-    echo $_FILES['error'];
     http_response_code(403);
+    
   }
 }
 
