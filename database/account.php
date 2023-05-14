@@ -95,7 +95,8 @@ class account
             return true;
         }
     }
-    public function changeData($request,$conn,$auth){
+    public function changeData($request, $conn, $auth)
+    {
         if (!isset($auth)) // preveri ce je token sploh poslan
         {
             echo "token ne obstaja";
@@ -107,8 +108,7 @@ class account
         }
         $jwt =  new JWT;
 
-        if (!$jwt->is_valid($auth))
-        {
+        if (!$jwt->is_valid($auth)) {
             echo "token ni valid";
             return false;
         }
@@ -123,7 +123,7 @@ class account
             return false;
         }
         // Check for disallowed characters in the username and password
-        if (!preg_match('/^[a-zA-Z0-9_]+$/', $username && isset($username)) ) {
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $username && isset($username))) {
             echo "username vsebuje nedovoljene znake";
             return false;
         }
@@ -174,7 +174,6 @@ class account
         ])) {
             return true;
         }
-
     }
     public function checkUsername($request, $conn)
     {
@@ -239,19 +238,22 @@ class account
     }
     private function saveImage(int $profileID, $isDefault = false, $file = null)
     {
-        
+
         if ($isDefault) {
             echo "default";
             // code to set default image
         } else {
 
-            echo "saveImage $profileID";
-            // Get the file name
-            $filename = basename($file['name']);
-    
+            $allowedTypes = array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF);
+            $detectedType = exif_imagetype($file['tmp_name']);
+            if (!in_array($detectedType, $allowedTypes)) {
+                echo json_encode(array('message' => 'Invalid file type. Only PNG, JPEG, and GIF images are allowed.'));
+                return false;
+            }
+
             // Set the destination path where the file will be saved
             $destination = '../profile/images/' . $profileID . '.png';
-    
+
             // Move the file to the specified path
             if (move_uploaded_file($file['tmp_name'], $destination)) {
                 // File uploaded successfully
