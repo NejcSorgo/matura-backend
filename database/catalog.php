@@ -32,7 +32,7 @@ class catalog
                 "Name" => $productRow["productName"],
                 "Price" => $productRow["productPrice"],
                 "Category" => $productRow["productCategory"],
-                
+
                 "Tags" => $tags,
                 "variants" => $variants,
                 "ProductID" => $productRow["id"]
@@ -51,7 +51,7 @@ class catalog
             ":productid" => $productID,
         ]);
         $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.description, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID AND p.id = :productid GROUP BY productName; ";
-        $fetchProduct = $conn->prepare($sql);   
+        $fetchProduct = $conn->prepare($sql);
         $fetchProduct->execute([ // fetcha vse productVariante za posamezen id
             ":productid" => $productID,
         ]);
@@ -144,41 +144,57 @@ class catalog
         echo (json_encode($products)); // vrne json od associativnega polje
         return true;
     }
-    public function getCategories($conn){
+    public function getCategories($conn)
+    {
         $sql = "SELECT DISTINCT p.ProductCategory, p.ProductSuperCategory
         FROM product p";
-         $fetchCategories = $conn->prepare($sql);
-         $fetchCategories->execute();
-         $categories = array();
-         $i = 0;
-         while ($category = $fetchCategories->fetch()){
+        $fetchCategories = $conn->prepare($sql);
+        $fetchCategories->execute();
+        $categories = array();
+        $i = 0;
+        while ($category = $fetchCategories->fetch()) {
             $categories[$i] = array(
-             "category" => $category["ProductCategory"],
-             "superCategory" => $category["ProductSuperCategory"]
+                "category" => $category["ProductCategory"],
+                "superCategory" => $category["ProductSuperCategory"]
             );
             $i++;
-         }  
-         echo json_encode($categories);
-         return true;       
+        }
+        echo json_encode($categories);
+        return true;
     }
-    public function getReviews($conn,$payload){
+    public function getReviews($conn, $payload)
+    {
+        if (!isset($payload->productID))
+            return false;
         $productID = $payload->productID;
         $reviews = array();
-        $sql  = "SELECT r.description,r.rating,u.id AS 'userid',u.username FROM review r, user u,product p WHERE r.userID = u.id AND r.productID = p.id AND r.id = :productID";
-        $fetchReviews= $conn->prepare($sql);
+        $sql  = "SELECT r.description,r.rating,u.id AS 'userid',u.username FROM review r, user u,product p WHERE r.userID = u.id AND r.productID = p.id AND p.id = :productID";
+        $fetchReviews = $conn->prepare($sql);
         $fetchReviews->execute([ // fetcha vse productVariante za posamezen id
             ":productID" => $productID
         ]);
+        $sql  = "SELECT AVG(rating) AS 'rating'FROM review r,product p WHERE r.productID = p.id AND r.id = :productID";
+        $fetchRating = $conn->prepare($sql);
+        $fetchRating->execute([ // fetcha vse productVariante za posamezen id
+            ":productID" => $productID  
+        ]);
         $i = 0;
-        while ($reviewRow = $fetchReviews->fetch()){
+        $return = array();
+        while ($reviewRow = $fetchReviews->fetch()) {
             $reviews[$i] = array( // napolni associativno polje z vsemi podatki o prodoktu
                 "username" => $reviewRow["username"],
                 "userid" => $reviewRow["userid"],
                 "description" => $reviewRow["description"],
             );
             $i++;
-         }  
-         echo json_encode($reviews);
-        
+        }
+        echo $i;
+        $ratingRow = $fetchRating->fetch();
+        $return = array(
+            "reviews" => $reviews,
+            "rating" => ($ratingRow["rating"]/10)
+        );
+        echo json_encode($return);
+        return true;
     }
 }
