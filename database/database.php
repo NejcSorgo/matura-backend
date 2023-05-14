@@ -10,9 +10,11 @@ require_once "catalog.php";
 $request_body = file_get_contents('php://input'); //shrani podatke od POST 
 $headers = apache_request_headers(); // dobi headerje (npr token od cookie)
 foreach ($headers as $header => $value) { // za vsak header doda vrednost
-  if ($header == "Authorization")
-      $auth = $value;
+  if ($header == "Authorization") {
+    $auth = $value;
+  }
 }
+
 // profile funkcije --------------------------------------------------------------
 if (isset($_GET["login"])) // WIP
 {
@@ -42,9 +44,12 @@ if (isset($_GET["changeProfileImage"])) {
   cors('http://localhost:3000');
   $account = new account;
   $payload = json_decode($request_body);
-  if ($account->setImage($payload, $conn, $auth)) {
+  if (isset($_FILES['file']) && $account->setImage($conn, $auth, $_FILES['file'])) {
+    
     http_response_code(200);
   } else {
+    echo ("bruh" . $_FILES['file']);
+    echo $_FILES['error'];
     http_response_code(403);
   }
 }
@@ -53,7 +58,16 @@ if (isset($_GET["getAccountData"])) {
   cors('http://localhost:3000');
   $payload = json_decode($request_body);
   $account = new account;
-  if ($account->getData($payload, $conn, $auth))
+  if ($account->getData($conn, $auth))
+    http_response_code(200); // status OK
+  else
+    http_response_code(403); // 403 forbidden (token ni veljaven)
+}
+if (isset($_GET["changeAccountData"])) {
+  cors('http://localhost:3000');
+  $payload = json_decode($request_body);
+  $account = new account;
+  if ($account->changeData($payload, $conn, $auth))
     http_response_code(200); // status OK
   else
     http_response_code(403); // 403 forbidden (token ni veljaven)
@@ -87,7 +101,7 @@ if (isset($_GET["getProductVariants"])) {
   $payload = json_decode($request_body);
   cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
   $productCatalog = new catalog;
-  if ($productCatalog->getProductVariants($conn,$payload)) {
+  if ($productCatalog->getProductVariants($conn, $payload)) {
     // da dela pa ne mece napak
     http_response_code(200);  // status OK
   } else {
@@ -98,7 +112,7 @@ if (isset($_GET["getCategories"])) {
   $payload = json_decode($request_body);
   cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
   $productCatalog = new catalog;
-  if ($productCatalog->getCategories($conn,$payload)) {
+  if ($productCatalog->getCategories($conn, $payload)) {
     // da dela pa ne mece napak
     http_response_code(200);  // status OK
   } else {
@@ -110,7 +124,7 @@ if (isset($_GET["getReviews"])) {
   $payload = json_decode($request_body);
   cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
   $productCatalog = new catalog;
-  if ($productCatalog->getReviews($conn,$payload)) {
+  if ($productCatalog->getReviews($conn, $payload)) {
     // da dela pa ne mece napak
     http_response_code(200);  // status OK
   } else {
@@ -130,7 +144,7 @@ if (isset($_GET["insertProduct"])) {
     http_response_code(403);
   }
 }
-if (isset($_GET["updateProduct"])){
+if (isset($_GET["updateProduct"])) {
   cors('http://localhost:3001');
   $admin = new admin;
   $payload = json_decode($request_body);
@@ -140,7 +154,7 @@ if (isset($_GET["updateProduct"])){
     http_response_code(403);
   }
 }
-if (isset($_GET["deleteProduct"])){
+if (isset($_GET["deleteProduct"])) {
   cors('http://localhost:3001');
   $admin = new admin;
   $payload = json_decode($request_body);
