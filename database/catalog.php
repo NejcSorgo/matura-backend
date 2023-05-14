@@ -185,6 +185,7 @@ class catalog
                 "username" => $reviewRow["username"],
                 "userid" => $reviewRow["userid"],
                 "description" => $reviewRow["description"],
+                "rate" => $reviewRow["rating"] 
             );
             $i++;
         }
