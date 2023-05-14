@@ -145,17 +145,21 @@ class catalog
         return true;
     }
     public function getCategories($conn){
-        $sql = "SELECT p.category
+        $sql = "SELECT DISTINCT p.ProductCategory, p.ProductSuperCategory
         FROM product p";
          $fetchCategories = $conn->prepare($sql);
          $fetchCategories->execute();
          $categories = array();
          $i = 0;
          while ($category = $fetchCategories->fetch()){
-            $categories[$i] = $category["productCategory"];
+            $categories[$i] = array(
+             "category" => $category["ProductCategory"],
+             "superCategory" => $category["ProductSuperCategory"]
+            );
             $i++;
          }  
          echo json_encode($categories);
+         return true;       
     }
     public function getReviews($conn,$payload){
         $productID = $payload->productID;
