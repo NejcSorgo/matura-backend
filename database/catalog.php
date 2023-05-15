@@ -144,7 +144,7 @@ class catalog
         echo (json_encode($products)); // vrne json od associativnega polje
         return true;
     }
-    public function getCategories($conn)
+    public function getFilter($conn) // dobi vsa polja, relevanta za filter (kategorije, barve, tage, najvecja cena, najmanjsa cena)
     {
         $sql = "SELECT DISTINCT p.ProductCategory, p.ProductSuperCategory
         FROM product p";
@@ -159,7 +159,26 @@ class catalog
             );
             $i++;
         }
-        echo json_encode($categories);
+        $sql = "SELECT DISTINCT tagName 
+        FROM tags
+        WHERE tagName IN ('black', 'white', 'gray', 'blue', 'green', 'yellow', 'red', 'pink', 'orange', 'purple', 'brown', 'beige', 'teal', 'turquoise', 'navy', 'olive', 'maroon', 'lavender', 'gold', 'silver', 'light blue');";
+        $fetchColors = $conn->prepare($sql);
+        $fetchColors->execute();
+        $colors = array();
+        for ($i = 0;$color = $fetchColors->fetch();$i++) {
+            $colors[$i] = $color["tagName"];
+        }
+        $sql = "SELECT MAX(productPrice) AS 'maxPrice', MIN(productPrice) AS 'minPrice' FROM product";
+        $fetchPrices = $conn->prepare($sql);
+        $fetchPrices->execute();
+        $prices = $fetchPrices->fetchAll();
+        $return = array(
+            "categories" => $categories,
+            "colors" => $colors,
+            "maxPrice" => $prices[0]["maxPrice"],
+            "minPrice" => $prices[0]["minPrice"]
+        );
+        echo json_encode($return);
         return true;
     }
     public function getReviews($conn, $payload)

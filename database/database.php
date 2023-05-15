@@ -109,11 +109,11 @@ if (isset($_GET["getProductVariants"])) {
     http_response_code(404); // vrne not found ce nekaj ne stima
   }
 }
-if (isset($_GET["getCategories"])) {
+if (isset($_GET["getFilterData"])) { // vrne podatke za filter (kategorije, )
   $payload = json_decode($request_body);
   cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
   $productCatalog = new catalog;
-  if ($productCatalog->getCategories($conn, $payload)) {
+  if ($productCatalog->getFilter($conn)) {
     // da dela pa ne mece napak
     http_response_code(200);  // status OK
   } else {
@@ -132,7 +132,6 @@ if (isset($_GET["getReviews"])) {
     http_response_code(404); // vrne not found ce nekaj ne stima
   }
 }
-
 // admin funckije  - - - - -----------------------------------------------------------------
 
 if (isset($_GET["insertProduct"])) {
