@@ -4,7 +4,7 @@ class catalog
 
     public function getCatalog($conn) // vrne json seznam productov in productVariantov *todo: vrne samo baseproduct in preveri ce je katerikoli od variantProductov in stock.*
     { // WIP
-        $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.description, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID GROUP BY productName; ";
+        $sql = "SELECT p.productName, p.productPrice,p.timeCreated, p.productCategory,p.id,p.description, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags' FROM product p, tags t,tagtoproduct tp WHERE p.id = tp.productID AND t.id = tp.TagID GROUP BY productName; ";
         $fetchProducts = $conn->prepare($sql);
         $fetchProducts->execute();
         $sql = "SELECT v.color,v.size,v.stock FROM productvariant v,product p WHERE p.id = :productid AND p.id = v.productID;";
@@ -32,10 +32,11 @@ class catalog
                 "Name" => $productRow["productName"],
                 "Price" => $productRow["productPrice"],
                 "Category" => $productRow["productCategory"],
-
+                "Desc" => $productRow["description"],
                 "Tags" => $tags,
                 "variants" => $variants,
-                "ProductID" => $productRow["id"]
+                "ProductID" => $productRow["id"],
+                "TimeCreated" => $productRow["timeCreated"]
             );
             $j++;
         }
@@ -211,7 +212,7 @@ class catalog
         $ratingRow = $fetchRating->fetch();
         $return = array(
             "reviews" => $reviews,
-            "rating" => ($ratingRow["rating"]/10)
+            "rating" => ($ratingRow["rating"]   )
         );
         echo json_encode($return);
         return true;

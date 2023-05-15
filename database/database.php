@@ -135,7 +135,7 @@ if (isset($_GET["getReviews"])) {
 // admin funckije  - - - - -----------------------------------------------------------------
 
 if (isset($_GET["insertProduct"])) {
-  cors('http://localhost:3001');
+  cors('http://localhost:3000');
   $admin = new admin;
   $payload = json_decode($request_body);
   if ($admin->insertProduct($payload, $conn, $auth)) {
@@ -145,7 +145,7 @@ if (isset($_GET["insertProduct"])) {
   }
 }
 if (isset($_GET["updateProduct"])) {
-  cors('http://localhost:3001');
+  cors('http://localhost:3000');
   $admin = new admin;
   $payload = json_decode($request_body);
   if ($admin->updateProduct($payload, $conn, $auth)) {
@@ -155,7 +155,7 @@ if (isset($_GET["updateProduct"])) {
   }
 }
 if (isset($_GET["deleteProduct"])) {
-  cors('http://localhost:3001');
+  cors('http://localhost:3000');
   $admin = new admin;
   $payload = json_decode($request_body);
   if ($admin->deleteProduct($payload, $conn, $auth)) {
@@ -164,3 +164,14 @@ if (isset($_GET["deleteProduct"])) {
     http_response_code(403);
   }
 }
+if (isset($_GET["getUsers"])) {
+  cors('http://localhost:3000');
+  $admin = new admin;
+  $payload = json_decode($request_body);
+  if ($admin->getUsers($conn, $auth)) {
+    http_response_code(200);
+  } else {
+    http_response_code(403);
+  }
+}
+

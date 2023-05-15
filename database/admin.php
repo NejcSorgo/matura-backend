@@ -1,17 +1,25 @@
 <?php
 class admin
 {
-    public function insertProduct($payload, $conn) // vnese produkt v tabelo
+    public function insertProduct($payload, $conn,$auth) // vnese produkt v tabelo
     {
+        if(!$this->verify($auth,$conn)){
+            return false;
+        }
         $ProductName = $payload['productName'];
         $ProductPrice = $payload['productPrice'];
         $ProductCategory = $payload['productCategory'];
+        $ProductCategory = $payload['productSuperCategory'];
         $sql = "INSERT INTO product (productName,productPrice,productCategory) VALUES ('$ProductName',$ProductPrice,'$ProductCategory')";
         if ($conn->query($sql))
             return true;
     }
-    public function insertProductVariant($payload, $conn) // vnese produkt v tabelo
+    public function insertProductVariant($payload, $conn,$auth) // vnese produkt v tabelo
     {
+        if (!$this->verify($auth,$conn))
+        {
+            return false;
+        }
         $variantColor= $payload['variantColor'];
         $variantSize = $payload['variantSize'];
         $variantStock = $payload['variantStock'];
@@ -20,8 +28,12 @@ class admin
         if ($conn->query($sql))
             return true;
     }
-    public function insertTag($payload, $conn) // funkicija za dodajanje tagov ($payload): array , ki vsebuje polja 'tagName'
-    {
+    public function insertTag($payload, $conn,$auth) // funkicija za dodajanje tagov ($payload): array , ki vsebuje polja 'tagName'
+    {   
+        if (!$this->verify($auth,$conn))
+        {
+            return false;
+        }
         if (!isset($payload['tagName']) || !isset($payload['id'])) { // preveri ce je payload array valid
             return  false;
         }
@@ -46,8 +58,11 @@ class admin
     }
 
 
-    public function deleteProduct($payload, $conn) // odstrani product
+    public function deleteProduct($payload, $conn,$auth) // odstrani product
     {
+        if(!$this->verify($auth,$conn)){
+            return false;
+        }
         if (!isset($payload['ProductID'])) {
             return false;
         }
@@ -58,9 +73,12 @@ class admin
         }
         return false; // drugace vrne false
     }
-    public function updateProduct($payload, $conn) // posodobi product
+    public function updateProduct($payload, $conn,$auth) // posodobi product
     {
-        if (!isset($payload['ProductID']) || !isset($payload['ProductPrice']) || !isset($payload['ProductName']) || !isset($payload['ProductCategory'])) { // preveri ce je  $payload valid
+        if(!$this->verify($auth,$conn)){
+            return false;
+        }
+        if (!isset($payload['ProductID']) || !isset($payload['ProductPrice']) || !isset($payload['ProductName']) || !isset($payload['ProductCategory']) || !isset($payload['ProductSuperCategory'])) { // preveri ce je  $payload valid
             return false;
         }
         $ProductID = $payload['ProductID'];
@@ -73,36 +91,12 @@ class admin
         }
         return false; // drugace vrne false
     }
-    public function addProductPicture($request,$conn)
+    public function addProductPicture($request,$conn,$auth)
     {
-        $jwt =  new JWT;
-        if (!isset($request->token)) // preveri ce je token sploh poslan
-        {
-            echo "token ne obstaja"; // debug
+        if(!$this->verify($auth,$conn)){
             return false;
         }
-        $token = $request->token;
-        if (!$jwt->is_valid($token)) // preveri ce je token valid
-        {
-            return false;
-        }
-        $token = $jwt->decode($token); // razsifrira token
-        $token = json_decode($token, 1);
-        $password = $token["password"];
-        $username = $token["username"];
-        $sql = "SELECT * FROM user WHERE password =:pswrd AND username=:usr"; // nesmes uporabit <':usr'> ker nebo deloval (https://www.php.net/manual/en/pdo.prepare.php drugi komentar)
-        $statement = $conn->prepare($sql);
-        $statement->execute([
-            ":pswrd" => $password,
-            ":usr" => $username
-        ]);
-        $info = $statement->fetch();
-        $id = $info["id"];
-        if (!$info->admin) { // preveri ce je uporabnik admin
-            return false;
-        }
-        unset($request->token);
-        if ($this->saveImage($id, false)) {
+        if ($this->saveImage($request->id, false)) {
             return true;
         }
         return false;
@@ -130,6 +124,58 @@ class admin
         fclose($handle);
         fclose($destination);
         return true;
+        }
+    public function getUsers($conn,$auth){
+        if(!$this->verify($auth, $conn))
+        {
+            echo "bruh";
+            return false;
+        }
+        $sql  = "SELECT * FROM user";
+        $statement = $conn->prepare($sql);
+        $statement->execute();
+        $users = array();
+        for ($i = 0;$row = $statement->fetch();$i++)
+        {
+            $users[$i] = array(
+                "id" => $row["id"],
+                "phoneNumber" => $row["phoneNumber"],
+                "email" => $row["email"],
+                "username" => $row["username"],
+                "timeCreated" => $row["timeCreated"],
+                "admin" => $row["admin"],
+                "password" => $row["password"]
+            );
+        }
+        echo json_encode($users);
+        return true;
     }
- 
+ private function verify($auth,$conn){ // preveri ce je uporabnik admin
+         $jwt = new JWT;
+        if (!isset($auth)) // preveri ce je token sploh poslan
+        {
+            echo "token ne obstaja"; // debug
+            return false;
+        }
+        if (!$jwt->is_valid($auth)) // preveri ce je token valid
+        {
+            echo "token ni valid";
+            return false;
+        }
+        $token = $jwt->decode($auth); // razsifrira token
+        $token = json_decode($token, 1);
+        $username = $token["username"];
+        $sql = "SELECT * FROM user WHERE username=:usr"; // nesmes uporabit <':usr'> ker nebo deloval (https://www.php.net/manual/en/pdo.prepare.php drugi komentar)
+        $statement = $conn->prepare($sql);
+        $statement->execute([
+            ":usr" => $username
+        ]);
+        $row = $statement->fetch();
+        if (!$row["admin"])
+        {
+            return false;
+        }
+        
+        return true;
+ }
 }
