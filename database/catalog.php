@@ -83,42 +83,79 @@ class catalog
         echo (json_encode($product)); // vrne json od associativnega polje
         return true;
     }
-    public function searchProductFilter($conn, $payload) // fixed by gpt :)
+    public function searchProductFilter($conn, $payload) // vrne produkte, ki se ujemajo z filterom.
     {
-        if (isset($payload->search))
-        {
+        if (isset($payload->search)) {
             $search = $payload->search;
-        }
-        else {
+        } else {
             $search = "";
         }
+        if (!isset($payload->sort)){
+            $sort = "bruh";
+        }
+        else {
+            $sort = $payload->sort;
+        }
+        
         $tags = $payload->tags;
-        $category = $payload->category;
-        $superCategory = $payload->superCategory;
+        if (isset($payload->category))
+        {
+            $category = $payload->category;
+        }
+        if (isset($payload->superCategory))
+        {
+            $superCategory = $payload->superCategory;
+        }
         $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.productSuperCategory, p.description, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags'
         FROM product p, tags t, tagtoproduct tp
-        WHERE p.id = tp.productID AND t.id = tp.TagID AND p.productCategory=:category AND p.productSuperCategory=:superCategory AND (p.productName LIKE :search OR t.tagName LIKE :search) ";
-        if ($tags){
+        WHERE p.id = tp.productID AND t.id = tp.TagID ";
+        switch ($sort) { // za sorting (lowest,highest,newest,relevant)
+            case "Price Lowest":
+                $orderby = "ORDER BY p.productPrice";
+                break;
+            case "Price Highest":
+                $orderby = "ORDER BY p.productPrice DESC";
+                break;
+            case "Newest":
+                $orderby = "ORDER BY p.timeCreated";
+                break;
+            case "Relevant":
+                $orderby = "";
+                break;
+            default:
+                $orderby = "";
+                break;
+        }
+        if (isset($category))
+            $sql .= "AND p.productCategory=:category ";
+        if (isset($superCategory))
+            $sql .= "AND p.productSuperCategory=:superCategory ";
+        $sql .= "AND (p.productName LIKE :search OR t.tagName LIKE :search)";
+        if ($tags) {
             $sql .= "AND t.tagName IN( ";
             for ($j = 0; $j < sizeof($tags); $j++) {
                 $sql .= ":tag$j";
                 if ($j < sizeof($tags) - 1) { // na koncu odstrani vejico
                     $sql .= ",";
                 }
-            }
-            $sql .= ") GROUP BY productName;";
+            } 
+            $sql .= ") GROUP BY productName ";
+            $sql .= $orderby;
             $fetchProducts = $conn->prepare($sql);
             for ($j = 0; $j < sizeof($tags); $j++) { // za vsaki tag  binda param
                 $fetchProducts->bindParam(":tag$j", $tags[$j], PDO::PARAM_STR);
             }
         } else {
-            $sql .= "GROUP BY productName;";
+            $sql .= "GROUP BY productName ";
+            $sql .= $orderby;
             $fetchProducts = $conn->prepare($sql);
         }
-        $fetchProducts->bindParam(":category",$category,PDO::PARAM_STR);
-        $fetchProducts->bindParam(":superCategory",$superCategory,PDO::PARAM_STR);
+        if (isset($category))
+            $fetchProducts->bindParam(":category", $category, PDO::PARAM_STR);
+        if (isset($superCategory))
+            $fetchProducts->bindParam(":superCategory", $superCategory, PDO::PARAM_STR);
         $search = "%$search%";
-        $fetchProducts->bindParam(":search",$search);
+        $fetchProducts->bindParam(":search", $search);
         $fetchProducts->execute();
         $sql = "SELECT v.color,v.size,v.stock
         FROM productvariant v,product p
@@ -177,7 +214,7 @@ class catalog
         $fetchColors = $conn->prepare($sql);
         $fetchColors->execute();
         $colors = array();
-        for ($i = 0;$color = $fetchColors->fetch();$i++) {
+        for ($i = 0; $color = $fetchColors->fetch(); $i++) {
             $colors[$i] = $color["tagName"];
         }
         $sql = "SELECT MAX(productPrice) AS 'maxPrice', MIN(productPrice) AS 'minPrice' FROM product";
@@ -207,7 +244,7 @@ class catalog
         $sql  = "SELECT AVG(rating) AS 'rating'FROM review r,product p WHERE r.productID = p.id AND r.id = :productID";
         $fetchRating = $conn->prepare($sql);
         $fetchRating->execute([ // fetcha vse productVariante za posamezen id
-            ":productID" => $productID  
+            ":productID" => $productID
         ]);
         $i = 0;
         $return = array();
@@ -216,14 +253,14 @@ class catalog
                 "username" => $reviewRow["username"],
                 "userid" => $reviewRow["userid"],
                 "description" => $reviewRow["description"],
-                "rate" => $reviewRow["rating"] 
+                "rate" => $reviewRow["rating"]
             );
             $i++;
         }
         $ratingRow = $fetchRating->fetch();
         $return = array(
             "reviews" => $reviews,
-            "rating" => ($ratingRow["rating"]   )
+            "rating" => ($ratingRow["rating"])
         );
         echo json_encode($return);
         return true;
