@@ -85,13 +85,19 @@ class catalog
     }
     public function searchProductFilter($conn, $payload) // fixed by gpt :)
     {
-        $search = $payload->search;
-        $tags = $payload->filter;
+        if ($payload->search)
+        {
+            $search = $payload->search;
+        }
+        else {
+            $search = "";
+        }
+        $tags = $payload->tags;
         $category = $payload->category;
         $superCategory = $payload->superCategory;
         $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.productSuperCategory, p.description, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags'
         FROM product p, tags t, tagtoproduct tp
-        WHERE p.id = tp.productID AND t.id = tp.TagID AND p.productCategory=:category AND p.productSuperCategory=:superCategory AND p.productName LIKE \"$search\" AND t.tagName IN(";
+        WHERE p.id = tp.productID AND t.id = tp.TagID AND p.productCategory=:category AND p.productSuperCategory=:superCategory AND p.productName LIKE :search AND t.tagName IN(";
 
         for ($j = 0; $j < sizeof($tags); $j++) {
             $sql .= ":tag$j";
@@ -107,7 +113,8 @@ class catalog
         }
         $fetchProducts->execute([
             ":category"  => $category,
-            ":superCategory" => $superCategory
+            ":superCategory" => $superCategory,
+            ":search" => $search
         ]);
         $sql = "SELECT v.color,v.size,v.stock
         FROM productvariant v,product p
