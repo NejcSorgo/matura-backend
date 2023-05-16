@@ -85,7 +85,7 @@ class catalog
     }
     public function searchProductFilter($conn, $payload) // fixed by gpt :)
     {
-        if ($payload->search)
+        if (isset($payload->search))
         {
             $search = $payload->search;
         }
@@ -97,25 +97,29 @@ class catalog
         $superCategory = $payload->superCategory;
         $sql = "SELECT p.productName, p.productPrice, p.productCategory,p.id,p.productSuperCategory, p.description, GROUP_CONCAT(t.tagName SEPARATOR ', ') AS 'tags'
         FROM product p, tags t, tagtoproduct tp
-        WHERE p.id = tp.productID AND t.id = tp.TagID AND p.productCategory=:category AND p.productSuperCategory=:superCategory AND p.productName LIKE :search AND t.tagName IN(";
-
-        for ($j = 0; $j < sizeof($tags); $j++) {
-            $sql .= ":tag$j";
-            if ($j < sizeof($tags) - 1) { // na koncu odstrani vejico
-                $sql .= ",";
+        WHERE p.id = tp.productID AND t.id = tp.TagID AND p.productCategory=:category AND p.productSuperCategory=:superCategory AND (p.productName LIKE :search OR t.tagName LIKE :search) ";
+        if ($tags){
+            $sql .= "AND t.tagName IN( ";
+            for ($j = 0; $j < sizeof($tags); $j++) {
+                $sql .= ":tag$j";
+                if ($j < sizeof($tags) - 1) { // na koncu odstrani vejico
+                    $sql .= ",";
+                }
             }
+            $sql .= ") GROUP BY productName;";
+            $fetchProducts = $conn->prepare($sql);
+            for ($j = 0; $j < sizeof($tags); $j++) { // za vsaki tag  binda param
+                $fetchProducts->bindParam(":tag$j", $tags[$j], PDO::PARAM_STR);
+            }
+        } else {
+            $sql .= "GROUP BY productName;";
+            $fetchProducts = $conn->prepare($sql);
         }
-
-        $sql .= ") GROUP BY productName;";
-        $fetchProducts = $conn->prepare($sql);
-        for ($j = 0; $j < sizeof($tags); $j++) {
-            $fetchProducts->bindParam(":tag$j", $tags[$j], PDO::PARAM_STR);
-        }
-        $fetchProducts->execute([
-            ":category"  => $category,
-            ":superCategory" => $superCategory,
-            ":search" => $search
-        ]);
+        $fetchProducts->bindParam(":category",$category,PDO::PARAM_STR);
+        $fetchProducts->bindParam(":superCategory",$superCategory,PDO::PARAM_STR);
+        $search = "%$search%";
+        $fetchProducts->bindParam(":search",$search);
+        $fetchProducts->execute();
         $sql = "SELECT v.color,v.size,v.stock
         FROM productvariant v,product p
         WHERE p.id = :productid AND p.id = v.productID;";
