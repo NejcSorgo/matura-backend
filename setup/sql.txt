@@ -5,9 +5,11 @@ CREATE TABLE user(
     username VARCHAR(25) NOT NULL,
     password VARCHAR(255) NOT NULL,
     email NVARCHAR(255) NOT NULL,
-    admin boolean DEFAULT 0,
+    firstName VARCHAR(255),
+    lastName VARCHAR(255),
     timeCreated datetime NOT NULL DEFAULT NOW(),
-    phoneNumber int(9) ZEROFILL
+    phoneNumber int(9) ZEROFILL,
+    admin boolean DEFAULT 0
     );
 CREATE TABLE product (
     id int PRIMARY KEY NOT NULL AUTO_INCREMENT,

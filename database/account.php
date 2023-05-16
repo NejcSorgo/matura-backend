@@ -41,7 +41,12 @@ class account
         $password = $request->password;
         $username = $request->username;
         $email = $request->email;
-
+        if (isset($request->phoneNumber))
+            $phoneNumber = $request->phoneNumber;
+        if (isset($request->firstName))
+            $firstName = $request->firstName;
+        if (isset($request->lastName))
+            $lastName = $request->lastName;
         // Check the length of the username and password
         if (strlen($password) > 60 || strlen($username) > 30) {
             return false;
@@ -55,7 +60,9 @@ class account
         if (strlen($email) > 255) {
             return false;
         }
-
+        if (strlen($email) > 255) {
+            return false;
+        }
         // Check the validity of the email address
         if (!preg_match('/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/', $email)) {
             return false;
@@ -84,14 +91,46 @@ class account
             return false;
         }
 
+
         // Insert the new user into the database
-        $sql = "INSERT INTO user (username,password,email) VALUES(:username, :password, :email);";
+        $sql = "INSERT INTO user (username,password,email";
+        if (isset($phoneNumber)) {
+            $sql .= ",phoneNumber";
+        }
+        if (isset($lastName)) {
+            $sql .= ",lastName";
+        }
+        if (isset($firstName)) {
+            $sql .= ",firstName";
+        }
+        $sql .= ") VALUES(:username, :password, :email";
+        if (isset($phoneNumber)) {
+            $sql .= ",:phoneNumber";
+        }
+        if (isset($lastName)) {
+            $sql .= ",:lastName";
+        }
+        if (isset($firstName)) {
+            $sql .= ",:firstName";
+        }
+
+        $sql .= ");";
         $statement = $conn->prepare($sql);
-        if ($statement->execute([
-            ':password' => password_hash($password, PASSWORD_BCRYPT),
-            ':username' => $username,
-            ':email' => $email
-        ])) {
+        if (isset($phoneNumber))
+            $statement->bindParam(":phoneNumber", $phoneNumber, PDO::PARAM_STR);
+
+        if (isset($lastName))
+            $statement->bindParam(":lastName", $lastName, PDO::PARAM_STR);
+
+        if (isset($firstName))
+            $statement->bindParam(":firstName", $firstName, PDO::PARAM_STR);
+
+
+        $statement->bindParam(":email", $email, PDO::PARAM_STR);
+        $statement->bindParam(":password", password_hash($password, PASSWORD_BCRYPT), PDO::PARAM_STR);
+        $statement->bindParam(":username", $username, PDO::PARAM_STR);
+
+        if ($statement->execute()) {
             return true;
         }
     }
@@ -175,9 +214,6 @@ class account
             return true;
         }
     }
-    public function checkUsername($request, $conn)
-    {
-    }
     public function getData($conn, $auth = null)
     {
         $jwt =  new JWT;
@@ -200,13 +236,15 @@ class account
         $statement->execute([
             ":id" => $userid
         ]);
-        $info = $statement->fetch();
+        $row = $statement->fetch();
         $bruh =  array(
-            "username" => $info["username"],
-            "id" => $info["id"],
-            "email" => $info["email"],
-            "phoneNumber" => $info["phoneNumber"],
-            "timeCreated" => $info["timeCreated"]
+            "username" => $row["username"],
+            "id" => $row["id"],
+            "email" => $row["email"],
+            "phoneNumber" => $row["phoneNumber"],
+            "timeCreated" => $row["timeCreated"],
+            "firstName" =>$row["firstName"],
+            "lastName"=>$row["lastName"]
         );
         echo json_encode($bruh);
         return true;

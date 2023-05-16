@@ -73,19 +73,6 @@ if (isset($_GET["changeAccountData"])) {
   else
     http_response_code(403); // 403 forbidden (token ni veljaven)
 }
-if (isset($_GET["checkUsername"])) // WIP (not in use ! placeholder)
-{
-  $payload = json_decode($request_body);
-  cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
-  $login = new account;
-  $bruh = $login->checkUsername($conn, $payload); // ustvari token
-  if ($bruh) {
-    http_response_code(200); // status OK
-  } else {
-    http_response_code(403); // status forbidden
-  }
-}
-
 // catalog funkcije ----------------------------------------------------------------------
 
 if (isset($_GET["getProductCatalog"])) {
