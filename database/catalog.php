@@ -266,4 +266,47 @@ class catalog
         echo json_encode($return);
         return true;
     }
+    public function checkout($conn, $payload, $auth)
+{
+    if (!isset($payload['products']) || empty($payload['products']) || !is_array($payload['products'])) {
+        return false;
+    }
+
+    if (!isset($auth)) {
+        return false;
+    }
+
+    $jwt = new JWT;
+    $token = $jwt->decode($auth);
+    $userid = $token["id"];
+    if (!$jwt->is_valid($auth)) {
+        return false;
+    }
+
+    $products = $payload['products'];
+
+    // Insert orders for each product in the array
+    foreach ($products as $product) {
+        if (!isset($product['productID']) || !isset($product['amount'])) {
+            continue; // Skip this product if required fields are missing
+        }
+
+        $productID = $product['productID'];
+        $amount = $product['amount'];
+
+        // Insert a new order into the orders table
+        $sql = "INSERT INTO orders (timePurchased, productID, address, userID, amount) 
+                VALUES (NOW(), :productID, :address, :userID, :amount)";
+        $insertOrder = $conn->prepare($sql);
+        $insertOrder->execute([
+            ":productID" => $productID,
+            ":address" => $payload['address'],
+            ":userID" => $userid,
+            ":amount" => $amount
+        ]);
+    }
+
+    return true;
+}
+    
 }

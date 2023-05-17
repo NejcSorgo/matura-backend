@@ -151,6 +151,7 @@ class account
             echo "token ni valid";
             return false;
         }
+        
         $phoneNumber = $request->phoneNumber;
         $username = $request->username;
         $email = $request->email;
