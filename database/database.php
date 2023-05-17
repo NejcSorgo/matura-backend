@@ -142,7 +142,17 @@ if (isset($_GET["insertProduct"])) {
     http_response_code(403);
   }
 }
-if (isset($_GET["updateProduct"])) {
+if (isset($_GET["getDashboard"])) {
+  cors('http://localhost:3000');
+  $admin = new admin;
+  $payload = json_decode($request_body);
+  if ($admin->getDashboardData($conn, $auth)) {
+    http_response_code(200);
+  } else {
+    http_response_code(403);
+  }
+}
+if (isset($_GET["updateProductBatch"])) {
   cors('http://localhost:3000');
   $admin = new admin;
   $payload = json_decode($request_body);
