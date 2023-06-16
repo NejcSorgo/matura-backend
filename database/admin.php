@@ -164,6 +164,11 @@ class admin
             echo $tagSql;
             $tagStatement = $conn->prepare($tagSql);
             $tagStatement->execute($productIDs);
+
+            $tagSql = "DELETE FROM review WHERE productID IN ($placeholders)";
+            echo $tagSql;
+            $tagStatement = $conn->prepare($tagSql);
+            $tagStatement->execute($productIDs);
             
             // Delete products
             $productSql = "DELETE FROM product WHERE id IN ($placeholders)";

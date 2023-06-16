@@ -32,7 +32,7 @@ class account
             return false;
         }
     }
-    public function signup($conn, $request) // gpt optimised code
+    public function signup($conn, $request) 
     {
         if (!isset($request->password) || !isset($request->username) || !isset($request->email)) {
             return false;

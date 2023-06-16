@@ -2,7 +2,7 @@
 /* 
 Vsebuje vse funkcije, za delo s podatkovno bazo. 
 */
-ini_set ("display_errors", "1");
+ini_set("display_errors", "1");
 error_reporting(E_ALL);
 require_once "../auth/jwt.php";
 require_once "connect.php";
@@ -51,7 +51,6 @@ if (isset($_GET["changeProfileImage"])) {
     http_response_code(200);
   } else {
     http_response_code(403);
-    
   }
 }
 
@@ -119,8 +118,8 @@ if (isset($_GET["getReviews"])) {
     http_response_code(404); // vrne not found ce nekaj ne stima
   }
 }
-if (isset($_GET["searchProductFilter"])){
-$payload = json_decode($request_body);
+if (isset($_GET["searchProductFilter"])) {
+  $payload = json_decode($request_body);
   cors('http://localhost:3000'); // dovoli povezavo samo s tega URL, drugace ne stima
   $productCatalog = new catalog;
   if ($productCatalog->searchProductFilter($conn, $payload)) {
@@ -182,4 +181,3 @@ if (isset($_GET["getUsers"])) {
     http_response_code(403);
   }
 }
-

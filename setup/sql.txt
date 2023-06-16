@@ -53,7 +53,7 @@ CREATE TABLE review(
     description VARCHAR(1000),
     rating tinyint(2) NOT NULL,
     FOREIGN KEY (productID) REFERENCES product(id),
-    FOREIGN KEY (productID) REFERENCES product(id)
+    FOREIGN KEY (userID) REFERENCES user(id)
 );
 INSERT user (username, password,admin,email) VALUES ("admin", "$2y$10$NTIrrcDWdTwujsa5f0fXJu3rrfYb9X3luLkNKPGa0LerqJcIi.i9G", true,"admin@gmail.com");
 INSERT user (username,password,email) VALUES ("nejc","1234","nejc.sorgo@gmail.com");
